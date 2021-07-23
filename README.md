@@ -48,10 +48,24 @@ The MiPlayer object is where all the data related to a player is stored for this
 | playTime           | int | How long (in seconds) the player has been playing (in total). |
 | isBanned           | bool | To know if the player has been banned. |
 | currentIp          | string | Current IP of the player |
-| ipList             | List<KeyValuePair<string,string>> | The list of IPs that the player has been using. |
-| permissions        | List<string> | List of permissions that the player has. |
+| ipList             | List(KeyValuePair)string,string)) | The list of IPs that the player has been using. |
+| permissions        | List(string) | List of permissions that the player has. |
 | regDate            | DateTime | The date that the player registered in the database. |
 | player             | Player | The MiNET Player object. |
 | commandContainer   | CommandSet | The list of commands that the player can access. |
 
 ### MiGroup Object
+
+The MiGroup object is where all the data related to a group is stored for this plugin.
+
+| **Property**       | **DataType** | **Description** |
+| ------------------ | :----------- | :------------- |
+| name               | string | Name of the group. |
+| id                 | int | Id of the group in the database. |
+| permissions        | List(string) | List of permissions that the group has. |
+| isDefault          | bool | If the group is the default one. |
+| priority           | int | The priority of the group. |
+| commandContainer   | Dictionary(string,Command) | List of commands that the group has. |
+
+
+
