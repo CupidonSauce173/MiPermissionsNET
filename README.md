@@ -1,2 +1,5 @@
 # MiPermissionsNET
- Permissions system using native MiNET Command Permission attribute and MySQL as database.
+
+<p align="center">MiPermissionsNET is a multi-groups permissions system using MiNET and MySQL.</p>
+
+
