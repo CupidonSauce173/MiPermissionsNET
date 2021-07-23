@@ -66,6 +66,3 @@ The MiGroup object is where all the data related to a group is stored for this p
 | isDefault          | bool | If the group is the default one. |
 | priority           | int | The priority of the group. |
 | commandContainer   | Dictionary(string,Command) | List of commands that the group has. |
-
-
-
