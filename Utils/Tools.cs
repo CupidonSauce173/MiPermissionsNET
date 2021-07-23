@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MiNET.Plugins;
 
 namespace MiPermissionsNET.Utils
 {
@@ -15,10 +10,7 @@ namespace MiPermissionsNET.Utils
             if (left == null) throw new ArgumentNullException("Can't merge into a null dictionary.");
             else if (right == null) return left;
 
-            foreach (var kvp in right)
-            {
-                if (!left.ContainsKey(kvp.Key)) left.Add(kvp.Key, kvp.Value);
-            }
+            foreach (var kvp in right) if (!left.ContainsKey(kvp.Key)) left.Add(kvp.Key, kvp.Value);
             return left;
         }
     }

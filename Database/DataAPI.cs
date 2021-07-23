@@ -1,11 +1,7 @@
 ﻿#pragma warning disable IDE0044
+using System.Collections.Generic;
 
 using MiPermissionsNET.Objects;
-
-using MiNET.Plugins;
-
-using System;
-using System.Collections.Generic;
 
 using MySqlConnector;
 
@@ -50,11 +46,10 @@ namespace MiPermissionsNET.Database
         {
             using MySqlCommand query = new("SELECT id,group_name,permissions,is_default,priority FROM MiGroups", db);
             using var results = query.ExecuteReader();
-            Console.WriteLine("##### Initializing List Of MiPermissionsNET Groups #####");
+
             // Preparing data for the groups.
             while (results.Read())
             {
-                Console.WriteLine("--> New Group : " + results.GetString("group_name") + " <--");
                 MiGroup group = new();
 
                 // Constructing Permissions list
@@ -77,11 +72,8 @@ namespace MiPermissionsNET.Database
 
                 // Attaching group to the MiGroup List.
                 plugin.groupData.Add(group.Name.ToLower(), group);
-                Console.WriteLine("Group attached to the MiGroup Dictionary.");
-
                 if (group.IsDefault) api.SetDefaultGroup(group);
             }
-            Console.WriteLine("##### ALL GROUPS ATTACHED #####");
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿#pragma warning disable IDE0044
+using System;
 
 using MiNET;
 using MiNET.Worlds;
-
-
-using System;
 
 namespace MiPermissionsNET
 {
@@ -13,12 +11,10 @@ namespace MiPermissionsNET
     /// </summary>
     class Events
     {
-        private API api;
         private MiPermissionsNET plugin;
 
         public Events(MiPermissionsNET pl)
         {
-            api = new(plugin);
             plugin = pl;
         }
 
@@ -35,11 +31,14 @@ namespace MiPermissionsNET
             Player player = eventArgs.Player;
             if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
-            player.SendMessage("Welcome to MiNET server!");
-
             plugin.CreateMiPlayer(player);
         }
 
+        /// <summary>
+        /// Player leave event (will detach the MiPlayer object from the playerData dictionary)
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="eventArgs"></param>
         public void OnPlayerLeave(object o, PlayerEventArgs eventArgs)
         {
             Player player = eventArgs.Player;

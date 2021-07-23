@@ -1,4 +1,6 @@
-﻿using MiNET;
+﻿using System.Threading;
+
+using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 
@@ -6,9 +8,6 @@ using MiPermissionsNET.Objects;
 using MiPermissionsNET.Database;
 
 using MySqlConnector;
-
-using System;
-using System.Threading;
 
 namespace MiPermissionsNET.Commands
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+
 using MiNET.Plugins;
-using System;
 
 namespace MiPermissionsNET.Objects
 {
@@ -34,7 +34,7 @@ namespace MiPermissionsNET.Objects
 
             if (refresh)
             {
-                //Implement refresh commands
+                //Implement refresh commands for players
             }
         }
 
@@ -45,7 +45,7 @@ namespace MiPermissionsNET.Objects
 
             if (refresh)
             {
-                //Implement refresh commands
+                //Implement refresh commands for players
             }
         }
 

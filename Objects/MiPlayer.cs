@@ -1,9 +1,8 @@
-﻿using MiNET;
-using MiNET.Net;
-using MiNET.Plugins;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using MiNET;
+using MiNET.Plugins;
 
 namespace MiPermissionsNET.Objects
 {
@@ -29,15 +28,10 @@ namespace MiPermissionsNET.Objects
         /// <returns></returns>
         public bool HasPermission(string permission)
         {
-            foreach (MiGroup group in MiGroups)
-            {
+            foreach (MiGroup group in MiGroups) 
                 if (group.Permissions.Contains(permission)) return true;
-            }
-            if (permissions.Contains(permission))
-            {
-                return true;
-            }
 
+            if (permissions.Contains(permission)) return true;
             return false;
         }
 

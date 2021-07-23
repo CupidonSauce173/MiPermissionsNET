@@ -1,4 +1,9 @@
 ﻿#pragma warning disable IDE0044
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Collections.Generic;
 
 using MiNET;
 using MiNET.Net;
@@ -8,13 +13,6 @@ using MiNET.Plugins.Attributes;
 using MiPermissionsNET.Objects;
 using MiPermissionsNET.Utils;
 using MiPermissionsNET.Database;
-
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using MySqlConnector;
 
@@ -27,7 +25,7 @@ namespace MiPermissionsNET
     public class API
     {
         private MiPermissionsNET plugin;
-        private MiGroup defaultGroup;
+        private MiGroup defaultGroup; // Contains the default group that will be assigned to new players.
 
         public API(MiPermissionsNET pl)
         {

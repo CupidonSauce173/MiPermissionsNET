@@ -1,22 +1,14 @@
-﻿using MiPermissionsNET.Database;
-using MiPermissionsNET.Commands;
-using MiPermissionsNET.Objects;
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using System.Reflection;
+using System.Collections.Generic;
 
 using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 
-using log4net;
-using System.Collections.Generic;
-using MiNET.Net;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.Linq;
+using MiPermissionsNET.Database;
+using MiPermissionsNET.Objects;
+using MiPermissionsNET.Utils;
 
 namespace MiPermissionsNET
 {
@@ -32,7 +24,7 @@ namespace MiPermissionsNET
         public Dictionary<string, MiGroup> groupData;
 
         // Contains the permission and the command.
-        public Dictionary<string, Command> commandPermissions;
+        public Dictionary<string, Command> commandPermissions; // key = command name, value = command
 
         protected override void OnEnable()
         {
@@ -49,6 +41,7 @@ namespace MiPermissionsNET
 
             // Registers Command
             server.PluginManager.LoadCommands(new Commands.Commands(this));
+            server.PluginManager.LoadPacketHandlers(new PacketHandler(this));
 
             // Constructing all groups.
             DataAPI dataApi = new(this);
@@ -64,24 +57,7 @@ namespace MiPermissionsNET
 
             // Generate a Command Container for each groups.
             api.GenerateCommandContainer(server);
-            Console.WriteLine("MiPermissionsNET has been enabled (Console.WriteLine)");
-            Debug.WriteLine("MiPermissionsNET has been enabled! (Debug.WriteLine)");
         }
-
-        /// <summary>
-        /// This will handle all the command request from the clients to see if they have it in their command container.
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="player"></param>
-        /// <returns></returns>
-        [PacketHandler]
-        public Packet HandleCommands(McpeCommandRequest msg, Player player)
-        {
-            string commandName = Regex.Split(msg.command, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray()[0].Trim('/');
-            if (GetAPI().GetMiPlayer(player).CommandContainer.ContainsKey(commandName.ToLower()) != true) return null;
-            return msg;
-        }
-
 
         /// <summary>
         /// Will create a new MiPlayer object.
@@ -97,7 +73,6 @@ namespace MiPermissionsNET
         public override void OnDisable()
         {
             // Stopping MySQL connection.
-            Console.WriteLine("Closing MiPermissionNET MySQl Connection....");
             DataAPI dataApi = new(this);
             dataApi.GetDatabase().Close();
         }
@@ -109,15 +84,6 @@ namespace MiPermissionsNET
         public API GetAPI()
         {
             return api;
-        }
-
-        /// <summary>
-        /// Will return the MiNETServer instance.
-        /// </summary>
-        /// <returns></returns>
-        public MiNetServer GetServer()
-        {
-            return server;
         }
     }
 }
