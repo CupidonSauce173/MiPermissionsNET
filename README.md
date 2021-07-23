@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="150" height="150" src="https://img.icons8.com/doodle/48/000000/security-checked--v1.png" />
+  <img width="150" height="150" src="https://img.icons8.com/doodle/96/000000/security-checked--v1.png" />
 </p>
 <h1 align=center>MiPermissionsNET</h1>
 <p align="center">MiPermissionsNET is a multi-groups permissions system using MiNET and MySQL.</p>
