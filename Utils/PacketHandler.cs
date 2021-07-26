@@ -1,10 +1,10 @@
-﻿using MiNET;
-using MiNET.Net;
-using MiNET.Plugins.Attributes;
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+using MiNET;
+using MiNET.Net;
+using MiNET.Plugins.Attributes;
 
 namespace MiPermissionsNET.Utils
 {
@@ -23,7 +23,7 @@ namespace MiPermissionsNET.Utils
         /// <param name="player"></param>
         /// <returns></returns>
         [PacketHandler]
-        public Packet HandleCommands(McpeCommandRequest msg, Player player)
+        public static Packet HandleCommands(McpeCommandRequest msg, Player player)
         {
             Console.WriteLine("test");
             string commandName = Regex.Split(msg.command, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray()[0].Trim('/');
@@ -32,11 +32,11 @@ namespace MiPermissionsNET.Utils
         }
 
         [PacketHandler]
-        public Packet HandleChat(McpeText msg, Player player)
+        public static Packet HandleChat(McpeText packet, Player player)
         {
             Console.WriteLine("test");
-            if (msg.message.StartsWith("/") || msg.message.StartsWith(".")) return msg;
-            player.Level.BroadcastMessage($"§d[§a{plugin.GetAPI().GetMiPlayer(player).FrontGroup.Name}§d]§e {player.Username} §f> §a");
+            if (packet.message.StartsWith("/") || packet.message.StartsWith(".")) return packet;
+            player.Level.BroadcastMessage($"§d[§a{plugin.GetAPI().GetMiPlayer(player).FrontGroup.Name}§d]§e {player.Username} §f> §a {packet.message}");
             return null;
         }
     }

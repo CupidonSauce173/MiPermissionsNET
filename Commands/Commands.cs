@@ -51,16 +51,107 @@ namespace MiPermissionsNET.Commands
 
         }
 
+        [Command(Name = "setpgroup", Description = "Add a group to a player", Permission = "setpgroup.MiPermissionsNET")]
+        public static void SetPGroup(Player player, string playerTarget, string groupTarget)
+        {
+            MiGroup group = plugin.GetAPI().GetGroupByName(groupTarget);
+
+            if (group == null)
+            {
+                player.SendMessage($"Group {groupTarget} is not found! Are you sure you target the right group?");
+                return;
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
+                if(miPlayer == null)
+                {
+                    // playerTarget is offline.
+                    MySqlCommand sqlCommand = new(
+                        "INSERT INTO PlayerGroups (player_id,group_id) " +
+                        "SELECT (SELECT id FROM MiPlayers WHERE username=@PlayerTarget),@GroupId " +
+                        "WHERE NOT EXISTS (SELECT player_id,group_id FROM PlayerGroups WHERE player_id=" +
+                        "(SELECT id FROM MiPlayers WHERE username=@PlayerTarget) AND group_id=@GroupId) LIMIT 1;", dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@PlayerTarget", playerTarget);
+                    sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                    sqlCommand.ExecuteNonQuery();
+                }
+                else
+                {
+                    // playerTarget is online.
+                    MySqlCommand sqlCommand = new(
+                        "INSERT INTO PlayerGroups (player_id,group_id) " +
+                        "SELECT @PlayerId,@GroupId WHERE NOT EXISTS " +
+                        "(SELECT player_id,group_id FROM PlayerGroups WHERE player_id=@PlayerId AND group_id = @GroupId) LIMIT 1; ",
+                        dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@PlayerId", miPlayer.Id);
+                    sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                    sqlCommand.ExecuteNonQuery();
+                    miPlayer.MiGroups.Add(group);
+                }
+                player.SendMessage($"Added {groupTarget} to {playerTarget} successfully!");
+            });
+            MySqlThread.Start();
+        }
+
         [Command(Name = "setdefault", Description = "To set a group as default group (new players will get this group automatically)", Permission = "setdefault.MiPermissionsNET")]
         public static void SetDefault(Player player, string groupTarget)
         {
+            MiGroup group = plugin.GetAPI().GetGroupByName(groupTarget);
 
+            if (group == null)
+            {
+                player.SendMessage($"Group {groupTarget} is not found! Are you sure you target the right group?");
+                return;
+            }
+            if (group.IsDefault)
+            {
+                player.SendMessage($"Group {groupTarget} is already the default group!");
+                return;
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                MySqlCommand sqlCommand = new(
+                    "UPDATE MiGroups SET is_default = true WHERE id = @NewGroupId; " +
+                    "UPDATE MiGroups SET is_default = false WHERE id = @OldGroupId; ",
+                    dbApi.GetDatabase());
+                sqlCommand.Parameters.AddWithValue("@NewGroupId", group.Id);
+                sqlCommand.Parameters.AddWithValue("@OldGroupId", plugin.GetAPI().GetDefaultGroup().Id);
+                sqlCommand.ExecuteNonQuery();
+                plugin.GetAPI().SetDefaultGroup(group);
+
+                player.SendMessage($"{group.Name} has been set as new default group with success!");
+            });
+            MySqlThread.Start();
         }
 
         [Command(Name = "setpriority", Description = "To set the priority of a group (greater the number is, smaller the priority is, example : 1 = highest, 10 = lowest)", Permission = "setpriority.MiPermissionsNET")]
         public static void SetPriority(Player player, string groupTarget, int priority)
         {
+            MiGroup group = plugin.GetAPI().GetGroupByName(groupTarget);
+            if (group == null)
+            {
+                player.SendMessage($"Group {groupTarget} is not found! Are you sure you target the right group?");
+                return;
+            }
+            if (group.Priority == priority)
+            {
+                player.SendMessage($"The priority of {groupTarget} is already {priority}!");
+                return;
+            }
+            Thread MySqlThread = new(() =>
+            {
+                MySqlCommand sqlCommand = new("UPDATE MiGroups SET priority = @Priority WHERE id = @GroupId", dbApi.GetDatabase());
+                sqlCommand.Parameters.AddWithValue("@Priority", priority);
+                sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                sqlCommand.ExecuteNonQuery();
+                group.Priority = priority;
 
+                player.SendMessage($"The priority of {groupTarget} has been updated to {priority} with success!");
+            });
+            MySqlThread.Start();
         }
 
         [Command(Name = "aliases", Description = "To get the list of aliases linked to a player.", Permission = "aliases.MiPermissionsNET")]
@@ -68,8 +159,8 @@ namespace MiPermissionsNET.Commands
         {
 
         }
-        
-        [Command(Name = "pînfo", Description = "To get a list of every information related to a player.", Permission = "pinfo.MiPermissionsNET")]
+
+        [Command(Name = "pinfo", Description = "To get a list of every information related to a player.", Permission = "pinfo.MiPermissionsNET")]
         public static void PInfo(Player player, string playerTarget)
         {
 
@@ -118,7 +209,7 @@ namespace MiPermissionsNET.Commands
         public static void Rmgroup(Player player, string groupTarget)
         {
             MiGroup miGroup = plugin.GetAPI().GetGroupByName(groupTarget);
-            if(miGroup == null)
+            if (miGroup == null)
             {
                 player.SendMessage($"Group {groupTarget} doesn't exists. Are you sure you are targetting the right MiGroup?");
                 return;
@@ -147,13 +238,13 @@ namespace MiPermissionsNET.Commands
                 plugin.GetAPI().DetachGroup(miGroup);
 
                 // Looking for every MiPlayers in the server and removing the group. If they don't have any other group, giving them the default one.
-                foreach(MiPlayer player in plugin.playerData.Values)
+                foreach (MiPlayer player in plugin.playerData.Values)
                 {
-                    foreach(MiGroup group in player.MiGroups)
+                    foreach (MiGroup group in player.MiGroups)
                     {
                         if (group.Id != miGroup.Id) continue;
                         // If player has one or less than 1 group, it will add the default group to the MiPlayer, Then remove the other group.
-                        if(player.MiGroups.Count <= 1) player.MiGroups.Add(plugin.GetAPI().GetDefaultGroup());
+                        if (player.MiGroups.Count <= 1) player.MiGroups.Add(plugin.GetAPI().GetDefaultGroup());
                         player.MiGroups.Remove(group);
                         return;
                     }
