@@ -40,10 +40,8 @@ namespace MiPermissionsNET.Database
                 ") ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;" +
                 // Table Playergroups
                 "CREATE TABLE IF NOT EXISTS PlayerGroups(" +
-                  "id INT AUTO_INCREMENT," +
                   "player_id INT NOT NULL," +
                   "group_id INT NOT NULL," +
-                  "PRIMARY KEY (id)," +
                   "FOREIGN KEY (player_id) REFERENCES MiPlayers(id)," +
                   "FOREIGN KEY (group_id) REFERENCES MiGroups(id)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=UTFMB4;" +
