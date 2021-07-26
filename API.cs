@@ -25,7 +25,7 @@ namespace MiPermissionsNET
     public class API
     {
         private MiPermissionsNET plugin;
-        private MiGroup defaultGroup; // Contains the default group that will be assigned to new players.
+        private MiGroup defaultGroup;
 
         public API(MiPermissionsNET pl)
         {
@@ -42,38 +42,25 @@ namespace MiPermissionsNET
         internal void GenerateCommandContainer(MiNetServer server, bool RefreashAllPlayerCommands = false)
         {
             CommandSet commands = server.PluginManager.Commands;
-
-            // Foreaching all the plugins.
             foreach (object pl in server.PluginManager.Plugins)
             {
-                // Getting all the methods in the plugin.
                 MethodInfo[] methods = pl.GetType().GetMethods();
-
-                // Foreaching all the methods of the plugin to see if CommandAttribute is assigned to a method (I know, it's hacky as fuck).
                 foreach (MethodInfo method in methods)
                 {
                     if (Attribute.GetCustomAttribute(method, typeof(CommandAttribute), false) is not CommandAttribute commandAttribute) continue;
-
-                    // CommandAttribute found.
                     if (string.IsNullOrEmpty(commandAttribute.Name.ToLower())) commandAttribute.Name = method.Name.ToLower();
 
-                    // Populating commandPermissions
                     plugin.commandPermissions.Add(commandAttribute.Permission, commands[commandAttribute.Name.ToLower()]);
-
-                    // Populating the commandContainer of the groups.
                     foreach (MiGroup group in plugin.groupData.Values)
                     {
-                        // Looking if the group has the permission assigned to commandAttribute.Permission.
                         if (group.Permissions.Contains(commandAttribute.Permission))
                         {
-                            // Adds command to the group command container.
                             if (commands.ContainsKey(commandAttribute.Name.ToLower()))
                                 group.AddCommand(commands[commandAttribute.Name.ToLower()]);
                         }
                     }
                 }
             }
-            // Will refresh all player commands on another thread.
             if (RefreashAllPlayerCommands) 
                 new Thread(new ThreadStart(RefreshAllPlayerCommands)).Start();
         }
@@ -86,18 +73,15 @@ namespace MiPermissionsNET
         {
             MiPlayer miPlayer = GetMiPlayer(player);
             if(miPlayer != null) {
-                // Creating command list for this miPlayer.
                 List<MiGroup> groups = miPlayer.MiGroups;
                 var miPlayerCmdContainer = new Dictionary<string, Command>(); // key = name of command, value = Command.
 
-                // Multi-Group part.
                 foreach (MiGroup group in groups)
                 {
                     Dictionary<string, Command> groupCmdSet = group.CommandContainer;
                     miPlayerCmdContainer.MergeCommandContainers(groupCmdSet);
                 }
 
-                // Per-User Commands.
                 foreach (string perm in miPlayer.Permissions)
                 {
                     if (plugin.commandPermissions.ContainsKey(perm))
@@ -107,7 +91,6 @@ namespace MiPermissionsNET
                     }
                 }
 
-                // Create, populate and send the new CommandSet to the player.
                 McpeAvailableCommands commandList = McpeAvailableCommands.CreateObject();
                 CommandSet CommandSet = new();
                 foreach(Command cmd in miPlayerCmdContainer.Values) CommandSet.Add(cmd.Name, cmd);
@@ -125,18 +108,15 @@ namespace MiPermissionsNET
         {
             foreach (MiPlayer miPlayer in plugin.playerData.Values)
             {
-                // Creating command list for this miPlayer.
                 List<MiGroup> groups = miPlayer.MiGroups;
                 var miPlayerCmdContainer = new Dictionary<string, Command>(); // key = name of command, value = Command.
 
-                // Multi-Group part.
                 foreach(MiGroup group in groups)
                 {
                     Dictionary<string, Command> groupCmdSet = group.CommandContainer;
                     miPlayerCmdContainer.MergeCommandContainers(groupCmdSet);
                 }
 
-                // Per-User Commands.
                 foreach(string perm in miPlayer.Permissions)
                 {
                     if (plugin.commandPermissions.ContainsKey(perm)){
@@ -145,7 +125,6 @@ namespace MiPermissionsNET
                     }
                 }
 
-                // Create and send the new CommandSet to the player.
                 McpeAvailableCommands commandList = McpeAvailableCommands.CreateObject();
                 CommandSet CommandSet = new();
                 foreach (Command cmd in miPlayerCmdContainer.Values) CommandSet.Add(cmd.Name, cmd);
@@ -315,17 +294,11 @@ namespace MiPermissionsNET
         internal void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupData)
         {
             DataAPI dataApi = new(plugin);
-
-            // Preparing all SQL commands.
-
-            // Main query for gathering MiPlayers & MiPlayersInfo data.
             MySqlCommand userQuery = new(
                 "SELECT MiPlayers.id,username,reg_date,play_time,is_banned FROM MiPlayers " +
                   "INNER JOIN MiPlayersInfo " +
                     "ON MiPlayers.id=MiPlayersInfo.player_id " +
                 "WHERE username=@UserName", dataApi.GetDatabase());
-
-            // Query to get the aliases of the MiPlayer.
             MySqlCommand aliasesQuery = new(
                 "SELECT MiPlayers.id,username,ip FROM MiPlayers " +
                   "INNER JOIN MiPlayersInfo ON MiPlayers.id=MiPlayersInfo.player_id " +
@@ -334,29 +307,20 @@ namespace MiPermissionsNET
                   "INNER JOIN MiPlayersInfo " +
                     "ON MiPlayers.id=MiPlayersInfo.player_id " +
                 "WHERE username=@Username)", dataApi.GetDatabase());
-
-            // Query to get the groups of the MiPlayer.
             MySqlCommand groupsQuery = new(
                 "SELECT group_id FROM PlayerGroups " +
                   "INNER JOIN MiPlayers " +
                     "ON PlayerGroups.player_id=MiPlayers.id " +
                 "WHERE player_id=@Id", dataApi.GetDatabase());
-
-            // Preparing parameters for the queries. Note that the parameters for groupsQuery is at the end (to let the function get the player.id).
             userQuery.Parameters.AddWithValue("@UserName", player.Username);
             aliasesQuery.Parameters.AddWithValue("@Username", player.Username);
 
-            // Prepares queries.
             userQuery.Prepare();
             aliasesQuery.Prepare();
 
             using MySqlDataReader results = userQuery.ExecuteReader();
-
-            // Creating MiPlayer object and assigning all data to it.
             int playTime = 0;
             bool set = false;
-
-            // Preparing data for the MiPlayer object. 
             MiPlayer MiPlayer = new();
             while (results.Read())
             {
@@ -364,8 +328,6 @@ namespace MiPermissionsNET
                 if (!set)
                 {
                     set = true;
-
-                    // Assigning data
                     MiPlayer.Player = player;
                     MiPlayer.Id = results.GetInt32("id");
                     MiPlayer.IsBanned = results.GetBoolean("is_banned");
@@ -375,10 +337,7 @@ namespace MiPermissionsNET
             MiPlayer.PlayTime = playTime;
             results.Close();
 
-            // Preparing ipList + aliases of MiPlayer object.
             using MySqlDataReader aliasesResults = aliasesQuery.ExecuteReader();
-
-            // Creating and populating ipList.
             List<KeyValuePair<string,string>> ipList = new();
             while (aliasesResults.Read())
             {
@@ -388,12 +347,10 @@ namespace MiPermissionsNET
             MiPlayer.IpList = ipList;
             aliasesResults.Close();
 
-            // Preparing groupList.
             groupsQuery.Parameters.AddWithValue("@Id", MiPlayer.Id);
             groupsQuery.Prepare();
             using MySqlDataReader groupsResults = groupsQuery.ExecuteReader();
 
-            // Creating and populating groupList.
             List<MiGroup> groupList = new();
             while (groupsResults.Read())
             {
@@ -402,16 +359,13 @@ namespace MiPermissionsNET
                     if (g.Id == groupsResults.GetInt32("group_id")) groupList.Add(g);
                 }
             }
-
-            // Get the group with the highest priority (lowest value).
             int highestPriority = groupList.Min(group => group.Priority);
             MiGroup frontGroup = groupList.First(group => group.Priority == highestPriority);
 
             MiPlayer.MiGroups = groupList;
             MiPlayer.FrontGroup = frontGroup;
             groupsResults.Close();
-
-            // Adding MiPlayer object to MiPlayer List.
+.
             plugin.playerData.Add(player.Username, MiPlayer);
             RefreshPlayerCommands(player);
         }

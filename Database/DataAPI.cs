@@ -47,16 +47,14 @@ namespace MiPermissionsNET.Database
             using MySqlCommand query = new("SELECT id,group_name,permissions,is_default,priority FROM MiGroups", db);
             using var results = query.ExecuteReader();
 
-            // Preparing data for the groups.
             while (results.Read())
             {
                 MiGroup group = new();
 
-                // Constructing Permissions list
                 string[] rawPermissions = results.IsDBNull(results.GetOrdinal("permissions")) ? null : results.GetString("permissions").Split(",");
                 if (rawPermissions != null)
                 {
-                    List<string> permissions = new(); // Permissions list.
+                    List<string> permissions = new();
                     foreach (string permission in rawPermissions)
                     {
                         permissions.Add(permission);
@@ -64,13 +62,11 @@ namespace MiPermissionsNET.Database
                     group.Permissions = permissions;
                 }
 
-                // End.
                 group.Id = results.GetInt32("id");
                 group.Name = results.GetString("group_name");
                 group.IsDefault = results.GetBoolean("is_default");
                 group.Priority = results.GetInt32("priority");
 
-                // Attaching group to the MiGroup List.
                 plugin.groupData.Add(group.Name.ToLower(), group);
                 if (group.IsDefault) api.SetDefaultGroup(group);
             }

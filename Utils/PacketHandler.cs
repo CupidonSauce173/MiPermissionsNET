@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 
 using MiNET;
@@ -30,6 +29,12 @@ namespace MiPermissionsNET.Utils
             return msg;
         }
 
+        /// <summary>
+        /// This will handle the chat system (I have to add the enable/disable option for it.
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="player"></param>
+        /// <returns></returns>
         [PacketHandler]
         public static Packet HandleChat(McpeText packet, Player player)
         {

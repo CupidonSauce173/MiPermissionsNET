@@ -15,11 +15,25 @@ namespace MiPermissionsNET.Commands
     {
         private static MiPermissionsNET plugin;
         private static DataAPI dbApi;
+
         public Commands(MiPermissionsNET pl)
         {
             plugin = pl;
             dbApi = new(pl);
         }
+
+        // Todo 
+        /**
+         * /setgperm 
+         * /setpperm
+         * /unsetgperm
+         * /unsetpperm 
+         * /resetplayer
+         * /pinfo
+         * /aliases
+         **/
+
+        // Other notes : Is it a really good idea to put all of these in other threads? Like, wouldn't that start making too many threads for the CPU?
 
         [Command(Name = "setgperm", Description = "To set a new permission to a group", Permission = "setgperm.MiPermissionsNET")]
         public static void SetGPerm(Player player, string groupTarget, string permission)
@@ -220,36 +234,27 @@ namespace MiPermissionsNET.Commands
                 return;
             }
 
-            // Starting new thread to remove the group from the MySQL Server.
             Thread disbandGroupThread = new(() =>
             {
-                // Removing group from MySQL.
                 MySqlCommand sqlCommand = new(
-                    // Deleting every rows connected to miGroup.id in PlayerGroups
                     "DELETE PlayerGroups FROM PlayerGroups " +
                       "INNER JOIN MiGroups ON MiGroups.id = PlayerGroups.group_id " +
                         "WHERE MiGroups.id = @GroupId; " +
-                    // Deleting the MiGroup.
                     "DELETE FROM MiGroups WHERE id = @GroupId;", dbApi.GetDatabase());
                 sqlCommand.Parameters.AddWithValue("@GroupId", miGroup.Id);
                 sqlCommand.ExecuteNonQuery();
-
-                // Detaching it from the server.
                 plugin.GetAPI().DetachGroup(miGroup);
 
-                // Looking for every MiPlayers in the server and removing the group. If they don't have any other group, giving them the default one.
                 foreach (MiPlayer player in plugin.playerData.Values)
                 {
                     foreach (MiGroup group in player.MiGroups)
                     {
                         if (group.Id != miGroup.Id) continue;
-                        // If player has one or less than 1 group, it will add the default group to the MiPlayer, Then remove the other group.
                         if (player.MiGroups.Count <= 1) player.MiGroups.Add(plugin.GetAPI().GetDefaultGroup());
                         player.MiGroups.Remove(group);
                         return;
                     }
                 }
-                // Refreshing player commandSets for all players.
                 plugin.GetAPI().RefreshAllPlayerCommands();
                 player.SendMessage($"MiGroup {groupTarget} has been removed.");
             });

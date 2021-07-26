@@ -17,8 +17,6 @@ namespace MiPermissionsNET.Database
                 db.Open();
             }
 
-            // Creating the database structure.
-
             MySqlCommand query = new(
 
                 // Table "MiGroups"

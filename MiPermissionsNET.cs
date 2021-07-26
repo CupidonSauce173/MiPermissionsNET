@@ -23,12 +23,10 @@ namespace MiPermissionsNET
         public Dictionary<string, MiPlayer> playerData;
         public Dictionary<string, MiGroup> groupData;
 
-        // Contains the permission and the command.
         public Dictionary<string, Command> commandPermissions; // key = command name, value = command
 
         protected override void OnEnable()
         {
-            // Init variables
             server = Context.Server;
             api = new(this);
             Events events = new(this);
@@ -36,26 +34,20 @@ namespace MiPermissionsNET
             groupData = new();
             commandPermissions = new();
 
-            // Load assembly
             Assembly.LoadFrom("MySqlConnector.dll");
 
-            // Registers Command
             server.PluginManager.LoadCommands(new Commands.Commands(this));
             server.PluginManager.LoadPacketHandlers(new PacketHandler(this));
 
-            // Constructing all groups.
             DataAPI dataApi = new(this);
             dataApi.ConstructGroupData();
            
-            // Register events
             server.PlayerFactory.PlayerCreated += (sender, args) =>
             {
                 Player player = args.Player;
                 player.PlayerJoin += events.OnPlayerJoin;
                 player.PlayerLeave += events.OnPlayerLeave;
-            }; 
-
-            // Generate a Command Container for each groups.
+            };
             api.GenerateCommandContainer(server);
         }
 
@@ -65,14 +57,12 @@ namespace MiPermissionsNET
         /// <param name="player"></param>
         public void CreateMiPlayer(Player player)
         {
-            // Create MiPlayer object
             Thread MiPlayerThread = new(() => api.CreateMiPlayer(player, groupData));
             MiPlayerThread.Start();
         }
 
         public override void OnDisable()
         {
-            // Stopping MySQL connection.
             DataAPI dataApi = new(this);
             dataApi.GetDatabase().Close();
         }
