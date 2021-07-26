@@ -1,4 +1,6 @@
 ﻿using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 
 using MiNET;
 using MiNET.Plugins;
@@ -24,32 +26,132 @@ namespace MiPermissionsNET.Commands
 
         // Todo 
         /**
-         * /setgperm 
-         * /setpperm
-         * /unsetgperm
-         * /unsetpperm 
          * /resetplayer
          * /pinfo
          * /aliases
          **/
 
-        [Command(Name = "setpperm", Description = "To set a new permission to a player", Permission = "setpperm.MiPermissionsNET")]
-        public static void SetPPerm(Player player, string playerTarget, string permission)
-        {
+        // Not implemented commands.
 
+        [Command(Name = "aliases", Description = "To get the list of aliases linked to a player.", Permission = "aliases.MiPermissionsNET")]
+        public static void Aliases(Player player, string playerTarget)
+        {
+            player.SendMessage("Will be implemented in another update.");
         }
 
-        [Command(Name = "unsetpperm", Description = "To unset a permission from a player", Permission = "unsetpperm.MiPermissionsNET")]
-        public static void UnsetPPerm(Player player, string playerTarget, string permission)
+        [Command(Name = "pinfo", Description = "To get a list of every information related to a player.", Permission = "pinfo.MiPermissionsNET")]
+        public static void PInfo(Player player, string playerTarget)
         {
-
+            player.SendMessage("Will be implemented in another update.");
         }
 
         [Command(Name = "resetplayer", Description = "To delete everything in the database related to that player (including aliases)", Permission = "resetplayer.MiPermissionsNET")]
         public static void ResetPlayer(Player player, string playerTarget)
         {
-
+            player.SendMessage("Will be implemented in another update.");
         }
+
+        [Command(Name = "setpperm", Description = "To set a new permission to a player", Permission = "setpperm.MiPermissionsNET")]
+        public static void SetPPerm(Player player, string playerTarget, string permission)
+        {
+            MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
+            if (miPlayer != null)
+            {
+                if (miPlayer.Permissions.Contains(permission))
+                {
+                    player.SendMessage($"{playerTarget} already have the permission {permission}!");
+                    return;
+                }
+                else miPlayer.Permissions.Add(permission);
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                if (miPlayer != null)
+                {
+                    //online
+                    string permString = string.Join(',', miPlayer.Permissions);
+                    MySqlCommand sqlCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE id=@PlayerId LIMIT 1;", dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                    sqlCommand.Parameters.AddWithValue("@PlayerId", miPlayer.Id);
+                    sqlCommand.Prepare();
+                    sqlCommand.ExecuteNonQuery();
+                }
+                else
+                {
+                    //offline
+                    MySqlCommand sqlCommand = new("SELECT permisisons FROM MiPlayers WHERE username=@TargetUser LIMIT 1;", dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
+                    sqlCommand.Prepare();
+
+                    using MySqlDataReader results = sqlCommand.ExecuteReader();
+                    while (results.Read())
+                    {
+                        List<string> permList = results.GetString("permissions").Split(',').ToList();
+                        permList.Add(permission);
+                        MySqlCommand updateCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE username=@TargetUser", dbApi.GetDatabase());
+                        updateCommand.Parameters.AddWithValue("@Permissions", string.Join(',', permList));
+                        updateCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
+                        updateCommand.Prepare();
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
+                player.SendMessage($"You gave the permission {permission} to the player {playerTarget} with success!");
+            });
+            MySqlThread.Start();
+        }
+
+        [Command(Name = "unsetpperm", Description = "To unset a permission from a player", Permission = "unsetpperm.MiPermissionsNET")]
+        public static void UnsetPPerm(Player player, string playerTarget, string permission)
+        {
+            MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
+            if (miPlayer != null)
+            {
+                if(miPlayer.Permissions.Contains(permission) != true)
+                {
+                    player.SendMessage($"{playerTarget} doesn't have the permission {permission}");
+                    return;
+                }
+                else miPlayer.Permissions.Remove(permission);
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                if(miPlayer != null)
+                {
+                    //online
+                    string permString = string.Join(',', miPlayer.Permissions);
+                    MySqlCommand sqlCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE id=@PlayerId LIMIT 1;", dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                    sqlCommand.Parameters.AddWithValue("@PlayerId", miPlayer.Id);
+                    sqlCommand.Prepare();
+                    sqlCommand.ExecuteNonQuery();
+                }
+                else
+                {
+                    //offline
+                    MySqlCommand sqlCommand = new("SELECT permisisons FROM MiPlayers WHERE username=@TargetUser LIMIT 1;", dbApi.GetDatabase());
+                    sqlCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
+                    sqlCommand.Prepare();
+
+                    using MySqlDataReader results = sqlCommand.ExecuteReader();
+                    while (results.Read())
+                    {
+                        List<string> permList = results.GetString("permissions").Split(',').ToList();
+                        permList.Remove(permission);
+                        MySqlCommand updateCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE username=@TargetUser", dbApi.GetDatabase());
+                        updateCommand.Parameters.AddWithValue("@Permissions", string.Join(',', permList));
+                        updateCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
+                        updateCommand.Prepare();
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
+                player.SendMessage($"You removed the permission {permission} from the player {playerTarget} with success!");
+            });
+            MySqlThread.Start();
+        }
+
+        // Implemented commands.
 
         [Command(Name = "unsetgperm", Description = "To unset a permission from a group", Permission = "unsetgperm.MiPermissionsNET")]
         public static void UnsetGPerm(Player player, string groupTarget, string permission)
@@ -70,10 +172,11 @@ namespace MiPermissionsNET.Commands
             Thread MySqlThread = new(() =>
             {
                 group.Permissions.Remove(permission);
-                string permString = string.Join(",", group.Permissions);
+                string permString = string.Join(',', group.Permissions);
                 MySqlCommand sqlCommand = new("UPDATE MiGroups permissions=@Permissions WHERE id=@GroupId", dbApi.GetDatabase());
                 sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
                 sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                sqlCommand.Prepare();
                 sqlCommand.ExecuteNonQuery();
                 player.SendMessage($"The permisison {permission} has been removed with success from the group {group.Name}!");
             });
@@ -103,6 +206,7 @@ namespace MiPermissionsNET.Commands
                 MySqlCommand sqlCommand = new("UPDATE MiGroups permissions=@Permissions WHERE id=@GroupId", dbApi.GetDatabase());
                 sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
                 sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                sqlCommand.Prepare();
                 sqlCommand.ExecuteNonQuery();
                 player.SendMessage($"The permisison {permission} has been added with success to the group {group.Name}!");
             });
@@ -133,6 +237,7 @@ namespace MiPermissionsNET.Commands
                         "(SELECT id FROM MiPlayers WHERE username=@PlayerTarget) AND group_id=@GroupId) LIMIT 1;", dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@PlayerTarget", playerTarget);
                     sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                    sqlCommand.Prepare();
                     sqlCommand.ExecuteNonQuery();
                 }
                 else
@@ -145,6 +250,7 @@ namespace MiPermissionsNET.Commands
                         dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@PlayerId", miPlayer.Id);
                     sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                    sqlCommand.Prepare();
                     sqlCommand.ExecuteNonQuery();
                     miPlayer.MiGroups.Add(group);
                 }
@@ -212,18 +318,6 @@ namespace MiPermissionsNET.Commands
             MySqlThread.Start();
         }
 
-        [Command(Name = "aliases", Description = "To get the list of aliases linked to a player.", Permission = "aliases.MiPermissionsNET")]
-        public static void Aliases(Player player, string playerTarget)
-        {
-
-        }
-
-        [Command(Name = "pinfo", Description = "To get a list of every information related to a player.", Permission = "pinfo.MiPermissionsNET")]
-        public static void PInfo(Player player, string playerTarget)
-        {
-
-        }
-
         [Command(Name = "addgroup", Description = "Will register a new MiGroup instance in the database and in the server.", Permission = "MiPermissionsNET.addgroup")]
         public static void AddGroup(Player player, string groupName, int priority)
         {
@@ -234,11 +328,8 @@ namespace MiPermissionsNET.Commands
             }
             player.SendMessage($"MiPermissionsNET is registering the new MiGroup named: {groupName}...");
 
-            // Starting new thread to create the MiGroup.
             Thread createGroupThread = new(() =>
             {
-                // Creating query + registering new group into MySQL.
-                // Yeah I know I limit to 1 but tbh we never know what could even happen so I prefer to put some more protections.
                 MySqlCommand sqlCommand = new(
                     "INSERT INTO MiGroups (group_name, priority) VALUES (@GroupName, @Priority); " +
                     "SELECT id FROM MiGroups WHERE group_name = @GroupName LIMIT 1;", dbApi.GetDatabase());
@@ -246,10 +337,7 @@ namespace MiPermissionsNET.Commands
                 sqlCommand.Parameters.AddWithValue("@Priority", priority);
                 sqlCommand.Prepare();
 
-                // Getting Index.
                 using MySqlDataReader results = sqlCommand.ExecuteReader();
-
-                // Creating and populating miGroup data.
                 MiGroup miGroup = new();
                 while (results.Read())
                 {
