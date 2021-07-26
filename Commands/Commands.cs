@@ -33,22 +33,8 @@ namespace MiPermissionsNET.Commands
          * /aliases
          **/
 
-        // Other notes : Is it a really good idea to put all of these in other threads? Like, wouldn't that start making too many threads for the CPU?
-
-        [Command(Name = "setgperm", Description = "To set a new permission to a group", Permission = "setgperm.MiPermissionsNET")]
-        public static void SetGPerm(Player player, string groupTarget, string permission)
-        {
-
-        }
-
         [Command(Name = "setpperm", Description = "To set a new permission to a player", Permission = "setpperm.MiPermissionsNET")]
         public static void SetPPerm(Player player, string playerTarget, string permission)
-        {
-
-        }
-
-        [Command(Name = "unsetgperm", Description = "To unset a permission from a group", Permission = "unsetgperm.MiPermissionsNET")]
-        public static void UnsetGPerm(Player player, string groupTarget, string permission)
         {
 
         }
@@ -63,6 +49,64 @@ namespace MiPermissionsNET.Commands
         public static void ResetPlayer(Player player, string playerTarget)
         {
 
+        }
+
+        [Command(Name = "unsetgperm", Description = "To unset a permission from a group", Permission = "unsetgperm.MiPermissionsNET")]
+        public static void UnsetGPerm(Player player, string groupTarget, string permission)
+        {
+            MiGroup group = plugin.GetAPI().GetGroupByName(groupTarget);
+            if (group == null)
+            {
+                player.SendMessage($"Group {groupTarget} is not found! Are you sure you target the right group?");
+                return;
+            }
+
+            if (group.Permissions.Contains(permission) != true)
+            {
+                player.SendMessage($"{groupTarget} doesn't have the permission {permission}");
+                return;
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                group.Permissions.Remove(permission);
+                string permString = string.Join(",", group.Permissions);
+                MySqlCommand sqlCommand = new("UPDATE MiGroups permissions=@Permissions WHERE id=@GroupId", dbApi.GetDatabase());
+                sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                sqlCommand.ExecuteNonQuery();
+                player.SendMessage($"The permisison {permission} has been removed with success from the group {group.Name}!");
+            });
+            MySqlThread.Start();
+        }
+
+        [Command(Name = "setgperm", Description = "To set a new permission to a group", Permission = "setgperm.MiPermissionsNET")]
+        public static void SetGPerm(Player player, string groupTarget, string permission)
+        {
+            MiGroup group = plugin.GetAPI().GetGroupByName(groupTarget);
+            if (group == null)
+            {
+                player.SendMessage($"Group {groupTarget} is not found! Are you sure you target the right group?");
+                return;
+            }
+
+            if (group.Permissions.Contains(permission))
+            {
+                player.SendMessage($"{groupTarget} already has the permission {permission}");
+                return;
+            }
+
+            Thread MySqlThread = new(() =>
+            {
+                group.Permissions.Add(permission);
+                string permString = string.Join(",", group.Permissions);
+                MySqlCommand sqlCommand = new("UPDATE MiGroups permissions=@Permissions WHERE id=@GroupId", dbApi.GetDatabase());
+                sqlCommand.Parameters.AddWithValue("@GroupId", group.Id);
+                sqlCommand.Parameters.AddWithValue("@Permissions", permString);
+                sqlCommand.ExecuteNonQuery();
+                player.SendMessage($"The permisison {permission} has been added with success to the group {group.Name}!");
+            });
+            MySqlThread.Start();
         }
 
         [Command(Name = "setpgroup", Description = "Add a group to a player", Permission = "setpgroup.MiPermissionsNET")]
