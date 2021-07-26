@@ -25,7 +25,6 @@ namespace MiPermissionsNET.Utils
         [PacketHandler]
         public static Packet HandleCommands(McpeCommandRequest msg, Player player)
         {
-            Console.WriteLine("test");
             string commandName = Regex.Split(msg.command, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray()[0].Trim('/');
             if (plugin.GetAPI().GetMiPlayer(player).CommandContainer.ContainsKey(commandName.ToLower()) != true) return null;
             return msg;
@@ -34,7 +33,6 @@ namespace MiPermissionsNET.Utils
         [PacketHandler]
         public static Packet HandleChat(McpeText packet, Player player)
         {
-            Console.WriteLine("test");
             if (packet.message.StartsWith("/") || packet.message.StartsWith(".")) return packet;
             player.Level.BroadcastMessage($"§d[§a{plugin.GetAPI().GetMiPlayer(player).FrontGroup.Name}§d]§e {player.Username} §f> §a {packet.message}");
             return null;
