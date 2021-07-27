@@ -15,7 +15,7 @@ namespace MiPermissionsNET
     /// <summary>
     /// Main class of the plugin.
     /// </summary>
-    [Plugin(Author = "CupidonSauce173", PluginName = "MiPermissionsNET", PluginVersion = "0.0.1", Description = "Permissions manager for OpenMiNET using MySQL as database.")]
+    [Plugin(Author = "CupidonSauce173", PluginName = "MiPermissionsNET", PluginVersion = "0.0.1", Description = "Permissions manager for MiNET using MySQL as database.")]
     public class MiPermissionsNET : Plugin
     {
         private API api;
