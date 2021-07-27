@@ -74,14 +74,17 @@ The MiGroup object is where all the data related to a group is stored for this p
 The plugin offers few commands, right now, they are all player-commands (can't be executed by the console).
 
 ```
+Commands related to groups.
 /addgroup <group> | Will create & register a new group in the database & server.
 /rmgroup <targetGroup> | Will disband a group from the server & database.
 /setpriority <targetGroup> <priority> | Will set the priority of a group.
 /setdefault <targetGroup> | Will set a group as default.
-/setpgroup <targetPlayer> <group> | Will give a new group to a player.
-/unsetpgroup <targetPlayer> <group> | Will remove a group from a player.
 /setgperm <targetGroup> <permission> | Will set a new permission for a group.
 /unsetgperm <targetGroup> <permission> | Will unset a permission from a group.
+
+Commands related to players.
+/setpgroup <targetPlayer> <group> | Will give a new group to a player.
+/unsetpgroup <targetPlayer> <group> | Will remove a group from a player.
 /unsetpperm <targetPlayer> <permission> | Will unset a permission from a player.
 /setpperm <targetPlayer> <permission> | Will set a permission to a player.
 /resetplayer <targetPlayer> | Will reset all MiPermissionsNET data from a player.
