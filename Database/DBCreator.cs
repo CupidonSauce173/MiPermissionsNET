@@ -28,6 +28,7 @@ namespace MiPermissionsNET.Database
                   "priority INT NOT NULL" +
                   "PRIMARY KEY (id)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;" +
+
                 // Table MiPlayers
                 "CREATE TABLE IF NOT EXISTS MiPlayers(" +
                   "id INT AUTO_INCREMENT," +
@@ -36,6 +37,7 @@ namespace MiPermissionsNET.Database
                   "permissions TEXT," +
                   "PRIMARY KEY (id)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;" +
+
                 // Table Playergroups
                 "CREATE TABLE IF NOT EXISTS PlayerGroups(" +
                   "player_id INT NOT NULL," +
@@ -43,6 +45,7 @@ namespace MiPermissionsNET.Database
                   "FOREIGN KEY (player_id) REFERENCES MiPlayers(id)," +
                   "FOREIGN KEY (group_id) REFERENCES MiGroups(id)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=UTFMB4;" +
+
                 // Table MiPlayersInfo
                 "CREATE TABLE IF NOT EXISTS MiPlayersInfo(" +
                   "id INT AUTO_INCREMENT," +

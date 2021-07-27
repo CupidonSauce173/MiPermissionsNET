@@ -24,7 +24,8 @@ namespace MiPermissionsNET.Commands
             dbApi = new(pl);
         }
 
-        // Todo 
+        // Todo
+
         /**
          * /resetplayer
          * /pinfo
@@ -69,7 +70,6 @@ namespace MiPermissionsNET.Commands
             {
                 if (miPlayer != null)
                 {
-                    //online
                     string permString = string.Join(',', miPlayer.Permissions);
                     MySqlCommand sqlCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE id=@PlayerId LIMIT 1;", dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@Permissions", permString);
@@ -79,7 +79,6 @@ namespace MiPermissionsNET.Commands
                 }
                 else
                 {
-                    //offline
                     MySqlCommand sqlCommand = new("SELECT permisisons FROM MiPlayers WHERE username=@TargetUser LIMIT 1;", dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
                     sqlCommand.Prepare();
@@ -95,6 +94,7 @@ namespace MiPermissionsNET.Commands
                         updateCommand.Prepare();
                         updateCommand.ExecuteNonQuery();
                     }
+                    results.Close();
                 }
                 player.SendMessage($"You gave the permission {permission} to the player {playerTarget} with success!");
             });
@@ -119,7 +119,6 @@ namespace MiPermissionsNET.Commands
             {
                 if(miPlayer != null)
                 {
-                    //online
                     string permString = string.Join(',', miPlayer.Permissions);
                     MySqlCommand sqlCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE id=@PlayerId LIMIT 1;", dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@Permissions", permString);
@@ -129,7 +128,6 @@ namespace MiPermissionsNET.Commands
                 }
                 else
                 {
-                    //offline
                     MySqlCommand sqlCommand = new("SELECT permisisons FROM MiPlayers WHERE username=@TargetUser LIMIT 1;", dbApi.GetDatabase());
                     sqlCommand.Parameters.AddWithValue("@TargetUser", playerTarget);
                     sqlCommand.Prepare();
@@ -145,6 +143,7 @@ namespace MiPermissionsNET.Commands
                         updateCommand.Prepare();
                         updateCommand.ExecuteNonQuery();
                     }
+                    results.Close();
                 }
                 player.SendMessage($"You removed the permission {permission} from the player {playerTarget} with success!");
             });
@@ -229,7 +228,6 @@ namespace MiPermissionsNET.Commands
                 MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
                 if(miPlayer == null)
                 {
-                    // playerTarget is offline.
                     MySqlCommand sqlCommand = new(
                         "INSERT INTO PlayerGroups (player_id,group_id) " +
                         "SELECT (SELECT id FROM MiPlayers WHERE username=@PlayerTarget),@GroupId " +
@@ -242,7 +240,6 @@ namespace MiPermissionsNET.Commands
                 }
                 else
                 {
-                    // playerTarget is online.
                     MySqlCommand sqlCommand = new(
                         "INSERT INTO PlayerGroups (player_id,group_id) " +
                         "SELECT @PlayerId,@GroupId WHERE NOT EXISTS " +
@@ -345,6 +342,7 @@ namespace MiPermissionsNET.Commands
                     miGroup.Id = results.GetInt32("id");
                     miGroup.Priority = priority;
                 }
+                results.Close();
 
                 player.SendMessage($"New MiGroup: {groupName} has been registered in the database and the server. Has the ID {miGroup.Id}");
             });

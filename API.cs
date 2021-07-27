@@ -338,7 +338,7 @@ namespace MiPermissionsNET
             results.Close();
 
             using MySqlDataReader aliasesResults = aliasesQuery.ExecuteReader();
-            List<KeyValuePair<string,string>> ipList = new();
+            List<KeyValuePair<string, string>> ipList = new();
             while (aliasesResults.Read())
             {
                 KeyValuePair<string, string> ip = new(aliasesResults.GetString("username"), aliasesResults.GetString("ip"));
@@ -365,7 +365,7 @@ namespace MiPermissionsNET
             MiPlayer.MiGroups = groupList;
             MiPlayer.FrontGroup = frontGroup;
             groupsResults.Close();
-.
+
             plugin.playerData.Add(player.Username, MiPlayer);
             RefreshPlayerCommands(player);
         }
