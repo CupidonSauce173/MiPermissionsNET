@@ -68,3 +68,23 @@ The MiGroup object is where all the data related to a group is stored for this p
 | isDefault          | bool | If the group is the default one. |
 | priority           | int | The priority of the group. |
 | commandContainer   | Dictionary(string,Command) | List of commands that the group has. |
+
+### Commands & Permissions
+
+The plugin offers few commands, right now, they are all player-commands (can't be executed by the console).
+
+```
+/addgroup <group> | Will create & register a new group in the database & server.
+/rmgroup <targetGroup> | Will disband a group from the server & database.
+/setpriority <targetGroup> <priority> | Will set the priority of a group.
+/setdefault <targetGroup> | Will set a group as default.
+/setpgroup <targetPlayer> <group> | Will give a new group to a player.
+/unsetpgroup <targetPlayer> <group> | Will remove a group from a player.
+/setgperm <targetGroup> <permission> | Will set a new permission for a group.
+/unsetgperm <targetGroup> <permission> | Will unset a permission from a group.
+/unsetpperm <targetPlayer> <permission> | Will unset a permission from a player.
+/setpperm <targetPlayer> <permission> | Will set a permission to a player.
+/resetplayer <targetPlayer> | Will reset all MiPermissionsNET data from a player.
+/pinfo <targetPlayer> | Will display a full data sheet of a player (aliases, ips, groups, other player info too) in a message.
+/aliases <targetPlayer> | Will display (without the IPs) all the aliases of the player.
+```
