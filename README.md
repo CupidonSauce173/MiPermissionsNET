@@ -143,3 +143,7 @@ internal MiPlayer getMiPlayer(Player player);
 # Method to create a new MiPlayer object and attach it to the MiPlayer list.
 internal void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupData)
 ```
+
+### Database structure
+
+
