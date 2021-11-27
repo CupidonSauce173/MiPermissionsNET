@@ -1,8 +1,7 @@
 ﻿#pragma warning disable IDE0044
-using System;
-
 using MiNET;
 using MiNET.Worlds;
+using System;
 
 namespace MiPermissionsNET
 {

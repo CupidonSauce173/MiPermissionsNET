@@ -1,9 +1,7 @@
 ﻿#pragma warning disable IDE0044
-using System.Collections.Generic;
-
 using MiPermissionsNET.Objects;
-
 using MySqlConnector;
+using System.Collections.Generic;
 
 
 namespace MiPermissionsNET.Database
@@ -20,13 +18,13 @@ namespace MiPermissionsNET.Database
         /// <param name="pl"></param>
         public DataAPI(MiPermissionsNET pl)
         {
-            if(db == null)
+            if (db == null)
             {
                 MySqlConnection conn = new("Server=127.0.0.1;Database=MiPermissions;uid=root;pwd=(V&432JNM(@!#UIFN9*v");
                 db = conn;
                 db.Open();
             }
-            if(api == null) api = new(pl);
+            if (api == null) api = new(pl);
             if (plugin == null) plugin = pl;
         }
 

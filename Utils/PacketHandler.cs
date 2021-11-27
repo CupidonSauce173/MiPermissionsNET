@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
-using System;
-
-using MiNET;
+﻿using MiNET;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MiPermissionsNET.Utils
 {

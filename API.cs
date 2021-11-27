@@ -1,20 +1,17 @@
 ﻿#pragma warning disable IDE0044
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Collections.Generic;
-
 using MiNET;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
-
+using MiPermissionsNET.Database;
 using MiPermissionsNET.Objects;
 using MiPermissionsNET.Utils;
-using MiPermissionsNET.Database;
-
 using MySqlConnector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 
 
 namespace MiPermissionsNET
@@ -61,7 +58,7 @@ namespace MiPermissionsNET
                     }
                 }
             }
-            if (RefreashAllPlayerCommands) 
+            if (RefreashAllPlayerCommands)
                 new Thread(new ThreadStart(RefreshAllPlayerCommands)).Start();
         }
 
@@ -72,7 +69,8 @@ namespace MiPermissionsNET
         internal void RefreshPlayerCommands(Player player)
         {
             MiPlayer miPlayer = GetMiPlayer(player);
-            if(miPlayer != null) {
+            if (miPlayer != null)
+            {
                 List<MiGroup> groups = miPlayer.MiGroups;
                 var miPlayerCmdContainer = new Dictionary<string, Command>(); // key = name of command, value = Command.
 
@@ -93,7 +91,7 @@ namespace MiPermissionsNET
 
                 McpeAvailableCommands commandList = McpeAvailableCommands.CreateObject();
                 CommandSet CommandSet = new();
-                foreach(Command cmd in miPlayerCmdContainer.Values) CommandSet.Add(cmd.Name, cmd);
+                foreach (Command cmd in miPlayerCmdContainer.Values) CommandSet.Add(cmd.Name, cmd);
                 commandList.CommandSet = CommandSet;
                 miPlayer.CommandContainer = CommandSet;
                 miPlayer.Player.SendPacket(commandList);
@@ -111,15 +109,16 @@ namespace MiPermissionsNET
                 List<MiGroup> groups = miPlayer.MiGroups;
                 var miPlayerCmdContainer = new Dictionary<string, Command>(); // key = name of command, value = Command.
 
-                foreach(MiGroup group in groups)
+                foreach (MiGroup group in groups)
                 {
                     Dictionary<string, Command> groupCmdSet = group.CommandContainer;
                     miPlayerCmdContainer.MergeCommandContainers(groupCmdSet);
                 }
 
-                foreach(string perm in miPlayer.Permissions)
+                foreach (string perm in miPlayer.Permissions)
                 {
-                    if (plugin.commandPermissions.ContainsKey(perm)){
+                    if (plugin.commandPermissions.ContainsKey(perm))
+                    {
                         if (miPlayerCmdContainer.ContainsKey(plugin.commandPermissions[perm].Name)) continue;
                         miPlayerCmdContainer.Add(plugin.commandPermissions[perm].Name, plugin.commandPermissions[perm]);
                     }

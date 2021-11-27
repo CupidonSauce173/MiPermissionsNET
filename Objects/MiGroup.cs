@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-
-using MiNET.Plugins;
+﻿using MiNET.Plugins;
+using System.Collections.Generic;
 
 namespace MiPermissionsNET.Objects
 {

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-using MiNET;
+﻿using MiNET;
 using MiNET.Plugins;
+using System;
+using System.Collections.Generic;
 
 namespace MiPermissionsNET.Objects
 {
@@ -15,7 +14,7 @@ namespace MiPermissionsNET.Objects
         private int playTime;
         private bool isBanned;
         private string currentIp;
-        private List<KeyValuePair<string,string>> ipList = new();
+        private List<KeyValuePair<string, string>> ipList = new();
         private List<string> permissions = new();
         private DateTime regDate;
         private Player player;
@@ -28,7 +27,7 @@ namespace MiPermissionsNET.Objects
         /// <returns></returns>
         public bool HasPermission(string permission)
         {
-            foreach (MiGroup group in MiGroups) 
+            foreach (MiGroup group in MiGroups)
                 if (group.Permissions.Contains(permission)) return true;
 
             if (permissions.Contains(permission)) return true;
@@ -85,7 +84,7 @@ namespace MiPermissionsNET.Objects
             set { currentIp = value; }
         }
 
-        public List<KeyValuePair<string,string>> IpList
+        public List<KeyValuePair<string, string>> IpList
         {
             get { return ipList; }
             set { ipList = value; }

@@ -1,15 +1,12 @@
-﻿using System.Threading;
-using System.Collections.Generic;
-using System.Linq;
-
-using MiNET;
+﻿using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
-
-using MiPermissionsNET.Objects;
 using MiPermissionsNET.Database;
-
+using MiPermissionsNET.Objects;
 using MySqlConnector;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace MiPermissionsNET.Commands
 {
@@ -107,7 +104,7 @@ namespace MiPermissionsNET.Commands
             MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
             if (miPlayer != null)
             {
-                if(miPlayer.Permissions.Contains(permission) != true)
+                if (miPlayer.Permissions.Contains(permission) != true)
                 {
                     player.SendMessage($"{playerTarget} doesn't have the permission {permission}");
                     return;
@@ -117,7 +114,7 @@ namespace MiPermissionsNET.Commands
 
             Thread MySqlThread = new(() =>
             {
-                if(miPlayer != null)
+                if (miPlayer != null)
                 {
                     string permString = string.Join(',', miPlayer.Permissions);
                     MySqlCommand sqlCommand = new("UPDATE FROM MiPlayers permissions=@Permissions WHERE id=@PlayerId LIMIT 1;", dbApi.GetDatabase());
@@ -226,7 +223,7 @@ namespace MiPermissionsNET.Commands
             Thread MySqlThread = new(() =>
             {
                 MiPlayer miPlayer = plugin.GetAPI().GetMiPlayerByName(playerTarget);
-                if(miPlayer == null)
+                if (miPlayer == null)
                 {
                     MySqlCommand sqlCommand = new(
                         "INSERT INTO PlayerGroups (player_id,group_id) " +

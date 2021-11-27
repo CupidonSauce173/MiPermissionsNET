@@ -1,14 +1,12 @@
-﻿using System.Threading;
-using System.Reflection;
-using System.Collections.Generic;
-
-using MiNET;
+﻿using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
-
 using MiPermissionsNET.Database;
 using MiPermissionsNET.Objects;
 using MiPermissionsNET.Utils;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
 
 namespace MiPermissionsNET
 {
@@ -41,7 +39,7 @@ namespace MiPermissionsNET
 
             DataAPI dataApi = new(this);
             dataApi.ConstructGroupData();
-           
+
             server.PlayerFactory.PlayerCreated += (sender, args) =>
             {
                 Player player = args.Player;
