@@ -91,3 +91,55 @@ Commands related to players.
 /pinfo <targetPlayer> | Will display a full data sheet of a player (aliases, ips, groups, other player info too) in a message.
 /aliases <targetPlayer> | Will display (without the IPs) all the aliases of the player.
 ```
+
+### Plugin API
+
+```c
+# Method to generate a container for all the groups in the MySQL database.
+internal void GenerateCommandContainer(MiNetServer server, bool RefreshAllPlayerCommands = false);
+
+# Method to refresh the commandSet for a player.
+internal void RefreshPlayerCommnads(Player player);
+
+# Method to refresh the commandSet for all connected players.
+internal void RefreshAllPlayerCommands();
+
+# Method to return all registered MiGroups objects.
+internal Dictionary<string, MiGroup> GetAllMiGroups();
+
+# Method to update a MiGroup object in the MySQL server.
+internal void UpdateMiGroup(MiGroup group);
+
+# Method to update a MiPlayer object in the MySQL server.
+internal void UpdateMiPlayer(MiPlayer player);
+
+# Method to set the default MiGroup in the server.
+internal void SetDefaultGroup(MiGroup group);
+
+# Method to return the default MiGroup in the server.
+internal void GetDefaultGroup();
+
+# Method to attach a group in the groupData dictionary.
+internal void AttachGroup(MiGroup group);
+
+# Method to detach a group from the groupData dictionary.
+internal void DetachGroup(MiGroup group);
+
+# Method to return a MiGroup object by name.
+internal MiGroup GetGroupByName(string name);
+
+# Method to return a MiGroup object by id.
+internal MiGroup GetGroupById(int id);
+
+# Method to return a dictionary of MiPlayers objects.
+internal Dictionary<string, MiPlayer> GetAllMiPlayers();
+
+# Method to return a MiPlayer by username.
+internal MiPlayer GetMiPlayerByName(string name);
+
+# Method to return a MiPlayer by MiNET Player object.
+internal MiPlayer getMiPlayer(Player player);
+
+# Method to create a new MiPlayer object and attach it to the MiPlayer list.
+internal void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupData)
+```
