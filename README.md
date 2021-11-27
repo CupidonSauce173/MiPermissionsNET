@@ -146,4 +146,4 @@ internal void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupDat
 
 ### Database structure
 
-
+![Alt text](MiPermissionsNETDataStructure.png?raw=true "MySQL Structure")
