@@ -94,7 +94,7 @@ Commands related to players.
 
 ### Plugin API
 
-```c
+```php
 # Method to generate a container for all the groups in the MySQL database.
 internal void GenerateCommandContainer(MiNetServer server, bool RefreshAllPlayerCommands = false);
 
