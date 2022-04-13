@@ -142,7 +142,7 @@ namespace MiPermissionsNET
         /// Will update the MiGroup data in the MySQL server.
         /// </summary>
         /// <param name="group"></param>
-        internal void UpdateMiGroup(MiGroup group)
+        internal async void UpdateMiGroup(MiGroup group)
         {
             // Prepare data for MySQL.
             string permissions = string.Join(",", group.Permissions);
@@ -153,15 +153,14 @@ namespace MiPermissionsNET
             query.Parameters.AddWithValue("@Permissions", permissions);
             query.Parameters.AddWithValue("@IsDefault", group.IsDefault);
             query.Parameters.AddWithValue("@Priority", group.Priority);
-            query.Prepare();
-            query.ExecuteNonQueryAsync();
+            await query.ExecuteNonQueryAsync();
         }
 
         /// <summary>
         /// To update the MiPlayer object in the database.
         /// </summary>
         /// <param name="player"></param>
-        internal void UpdateMiPlayer(MiPlayer player)
+        internal async void UpdateMiPlayer(MiPlayer player)
         {
             // Send datat to MYSQL.
             DataAPI db = new(plugin);
@@ -176,8 +175,7 @@ namespace MiPermissionsNET
             query.Parameters.AddWithValue("@Username", player.Player.Username);
             query.Parameters.AddWithValue("@PlayTime", player.PlayTime);
             query.Parameters.AddWithValue("@IsBanned", player.IsBanned);
-            query.Prepare();
-            query.ExecuteNonQuery();
+            await query.ExecuteNonQueryAsync();
         }
 
         /// <summary>
@@ -290,7 +288,7 @@ namespace MiPermissionsNET
         /// Creating a new MiPlayer Entity and attaching it to the MiPlayer list.
         /// </summary>
         /// <param name="player"></param>
-        internal void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupData)
+        internal async void CreateMiPlayer(Player player, Dictionary<string, MiGroup> groupData)
         {
             DataAPI dataApi = new(plugin);
             MySqlCommand userQuery = new(
